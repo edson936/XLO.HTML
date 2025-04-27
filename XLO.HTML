@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XLO - Compra e Venda</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      background: #f2f2f2;
+    }
+    header {
+      background: #2d89ef;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .container {
+      padding: 20px;
+    }
+    .navbar {
+      background: #2d89ef;
+      padding: 10px 20px;
+      color: white;
+      text-align: center;
+    }
+    .navbar a {
+      color: white;
+      text-decoration: none;
+      margin: 0 15px;
+      font-size: 16px;
+    }
+    .navbar a:hover {
+      text-decoration: underline;
+    }
+    .back-button {
+      background: #ff5722;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+    .back-button:hover {
+      background: #e64a19;
+    }
+    .login-box, .register-box, .publish-box {
+      max-width: 350px;
+      margin: 50px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #2d89ef;
+    }
+    input[type="text"], input[type="password"], input[type="file"], textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #2d89ef;
+      border: none;
+      color: white;
+      border-radius: 8px;
+      font-size: 16px;
+      margin-top: 15px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #1b5fac;
+    }
+    .link {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+    .link a {
+      color: #2d89ef;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .message {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 14px;
+      color: red;
+    }
+    .products {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+    .product {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .product img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+    .product h3 {
+      margin: 10px 0 5px;
+    }
+    .product p {
+      color: #666;
+      font-size: 14px;
+    }
+    .highlight {
+      background: linear-gradient(90deg, #ff6600 0%, #ff8533 100%);
+      color: white;
+      text-align: center;
+      padding: 30px 20px;
+      margin: 20px 0;
+      font-size: 24px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>XLO</h1>
+</header>
+
+<div class="navbar">
+  <a href="javascript:void(0)" onclick="showLogin()">Login</a>
+  <a href="javascript:void(0)" onclick="showRegister()">Cadastrar</a>
+  <a href="javascript:void(0)" onclick="checkLogin()">Home</a>
+</div>
+
+<div class="container" id="loginPage">
+  <div class="login-box">
+    <h2>Entrar</h2>
+    <input type="text" id="loginUser" placeholder="Usuário">
+    <input type="password" id="loginPass" placeholder="Senha">
+    <button onclick="login()">Entrar</button>
+    <div class="link">
+      Não tem conta? <a onclick="showRegister()">Cadastrar</a>
+    </div>
+    <div class="message" id="loginMessage"></div>
+  </div>
+</div>
+
+<div class="container" id="registerPage" style="display:none;">
+  <div class="register-box">
+    <h2>Criar Conta</h2>
+    <input type="text" id="registerUser" placeholder="Novo Usuário">
+    <input type="password" id="registerPass" placeholder="Nova Senha">
+    <button onclick="register()">Cadastrar</button>
+    <div class="link">
+      Já tem conta? <a onclick="showLogin()">Entrar</a>
+    </div>
+    <div class="message" id="registerMessage"></div>
+  </div>
+</div>
+
+<div id="mainPage" style="display:none;">
+  <div class="highlight">
+    Confira os melhores anúncios de hoje!
+  </div>
+  <div class="container">
+    <div class="products" id="productsList"></div>
+    <button class="back-button" onclick="showPublishPage()">Novo Anúncio</button>
+    <button class="back-button" onclick="logout()">Sair</button>
+  </div>
+</div>
+
+<div id="publishPage" style="display:none;">
+  <div class="publish-box">
+    <h2>Cadastrar Novo Produto</h2>
+    <input type="text" id="productName" placeholder="Nome do Produto">
+    <input type="text" id="productPrice" placeholder="Preço">
+    <input type="text" id="productLocation" placeholder="Localização">
+    <textarea id="productDescription" placeholder="Descrição do Produto" rows="4"></textarea>
+    <input type="file" id="productImage" accept="image/*">
+    <button onclick="publishProduct()">Publicar</button>
+    <div class="message" id="publishMessage"></div>
+  </div>
+</div>
+
+<script>
+  let users = {}; // Usuários cadastrados
+  let loggedUser = null;
+  let products = []; // Lista de produtos cadastrados
+
+  // Função que verifica se o usuário está logado antes de acessar a página principal
+  function checkLogin() {
+    if (!loggedUser) {
+      alert("Você precisa fazer login primeiro.");
+      showLogin();
+    } else {
+      showMainPage();
+    }
+  }
+
+  function showLogin() {
+    document.getElementById('loginPage').style.display = 'block';
+    document.getElementById('registerPage').style.display = 'none';
+    document.getElementById('mainPage').style.display = 'none';
+    document.getElementById('publishPage').style.display = 'none';
+  }
+
+  function showRegister() {
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('registerPage').style.display = 'block';
+    document.getElementById('mainPage').style.display = 'none';
+    document.getElementById('publishPage').style.display = 'none';
+  }
+
+  function showMainPage() {
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('registerPage').style.display = 'none';
+    document.getElementById('mainPage').style.display = 'block';
+    document.getElementById('publishPage').style.display = 'none';
+    loadProducts();
+  }
+
+  function logout() {
+    loggedUser = null;
+    showLogin();
+  }
+
+  function showPublishPage() {
+    document.getElementById('publishPage').style.display = 'block';
+    document.getElementById('mainPage').style.display = 'none';
+  }
+
+  function login() {
+    let user = document.getElementById('loginUser').value;
+    let pass = document.getElementById('loginPass').value;
+    let message = document.getElementById('loginMessage');
+
+    if (users[user] && users[user] === pass) {
+      loggedUser = user;
+      showMainPage();
+    } else {
+      message.textContent = 'Usuário ou senha incorretos!';
+    }
+  }
+
+  function register() {
+    let user = document.getElementById('registerUser').value;
+    let pass = document.getElementById('registerPass').value;
+    let message = document.getElementById('registerMessage');
+
+    if (user && pass) {
+      users[user] = pass;
+      message.textContent = 'Cadastro realizado com sucesso!';
+      setTimeout(() => showLogin(), 2000);
+    } else {
+      message.textContent = 'Preencha todos os campos!';
+    }
+  }
+
+  function publishProduct() {
+    let name = document.getElementById('productName').value;
+    let price = document.getElementById('productPrice').value;
+    let location = document.getElementById('productLocation').value;
+    let description = document.getElementById('productDescription').value;
+    let image = document.getElementById('productImage').files[0];
+    let message = document.getElementById('publishMessage');
+
+    if (name && price && location && description && image) {
+      const product = {
+        name: name,
+        price: price,
+        location: location,
+        description: description,
+        image: URL.createObjectURL(image)
+      };
+
+      products.push(product);
+      message.textContent = 'Produto publicado com sucesso!';
+      setTimeout(() => {
+        document.getElementById('publishPage').style.display = 'none';
+        document.getElementById('mainPage').style.display = 'block';
+        loadProducts();
+      }, 2000);
+    } else {
+      message.textContent = 'Preencha todos os campos!';
+    }
+  }
+
+  function loadProducts() {
+    const productContainer = document.getElementById('productsList');
+    productContainer.innerHTML = '';
+
+    products.forEach(product => {
+      const productDiv = document.createElement('div');
+      productDiv.classList.add('product');
+      productDiv.innerHTML = `
+        <img src="${product.image}" alt="Produto">
+        <h3>${product.name}</h3>
+        <p>R$ ${product.price}</p>
+        <div class="description">${product.description}</div>
+      `;
+      productContainer.appendChild(productDiv);
+    });
+  }
+</script>
+
+</body>
+</html>
+                                  
