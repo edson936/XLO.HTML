@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>MarcenariaApp v11.6</title>
+        <!-- Favicon para charme -->
+        <link rel="icon" href="https://raw.githubusercontent.com/mdn/learning-area/main/html/introduction-to-html/what-is-html/favicon.ico" type="image/x-icon" />
+        <!-- Link para a folha de estilo externa (CSS) -->
+        <link rel="stylesheet" href="style.css" />
+        <!-- Incluindo jsPDF para exportação de PDF -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+        <!-- Incluindo SheetJS (XLSX) para exportação de Excel -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    </head>
+    <body>
+        <!-- BOOT LOADER SECTION -->
+        <div id="boot-loader">
+            <h1>MarcenariaApp</h1>
+            <div id="boot-log"></div>
+            <div id="loading-bar-container"><div id="progress-bar"></div></div>
+        </div>
+        <!-- LOGIN SCREEN WRAPPER -->
+        <div id="login-wrapper" style="display: none;">
+            <div id="login-screen">
+                <h2>Bem-vindo!</h2>
+                <div class="form-group"><label for="username">Usuário:</label> <input type="text" id="username" placeholder="Digite seu usuário" /></div>
+                <div class="form-group"><label for="password">Senha:</label> <input type="password" id="password" placeholder="Digite sua senha" /></div>
+                <p id="error-message" style="color: var(--cor-erro);"></p>
+                <button id="login-button">Entrar</button>
+            </div>
+            <div id="admin-screen" style="display: none;">
+                <h2>Painel Administrativo</h2>
+                <div class="form-group">
+                    <label for="client-name">Nome do Cliente para Gerar Credenciais:</label> <input type="text" id="client-name" placeholder="Ex: João Silva" /> <button id="generate-btn" style="margin-top: 10px;">Gerar Credenciais</button>
+                </div>
+                <div id="credentials-output" style="display: none;"></div>
+                <h3>Usuários Clientes:</h3>
+                <ul id="user-list" class="user-list"></ul>
+                <a href="#" id="logout-link" style="color: var(--cor-principal); text-decoration: none; margin-top: 20px; display: inline-block;">Sair</a>
+            </div>
+        </div>
+        <!-- MAIN APPLICATION CONTAINER -->
+        <div id="app-wrapper" class="container" style="display: none;">
+            <div class="header-section">
+                <h1>Calc-Marcenaria PRO</h1>
+                <button id="app-logout-button">Sair</button>
+            </div>
+            <div class="input-group">
+                <div class="form-group"><label for="cliente">Nome do Cliente:</label> <input type="text" id="cliente" value="Cliente Padrão" /></div>
+                <div class="form-group"><label for="mao-de-obra-perc">Mão de Obra (% sobre Custo Mat.):</label> <input type="number" id="mao-de-obra-perc" value="30" step="0.01" /></div>
+                <div class="form-group"><label for="margem">Margem de Lucro (% sobre Custo Total):</label> <input type="number" id="margem" value="20" step="0.01" /></div>
+                <div class="form-group"><label for="cor-padrao-interna">Cor Padrão MDF Interno:</label> <input type="text" id="cor-padrao-interna" value="Branco" /></div>
+                <div class="form-group"><label for="esp-padrao-interna">Expessura MDF Interno (mm):</label> <input type="number" id="esp-padrao-interna" value="15" step="0.1" /></div>
+                <div class="form-group"><label for="cor-padrao-externa">Cor Padrão MDF Externo:</label> <input type="text" id="cor-padrao-externa" value="Italiana Amêndoa" /></div>
+                <div class="form-group"><label for="esp-padrao-extera">Espessura MDF Externo (mm):</label> <input type="number" id="esp-padrao-extera" value="18" step="0.1" /></div>
+                <div class="form-group"><label for="ambiente">Ambiente do Módulo:</label> <input type="text" id="ambiente" placeholder="Ex: Cozinha, Quarto 1" value="Geral" /></div>
+            </div>
+            <div class="button-group">
+                <button onclick="MarcenariaApp.abrirModalCriador()">Criador Avançado de Módulos</button> <button onclick="MarcenariaApp.abrirMontadorRapido()">Montador Rápido de Módulos</button>
+                <button onclick="MarcenariaApp.exportarDB()">Exportar DB (Console)</button>
+            </div>
+            <h2>Adicionar Módulos ao Projeto</h2>
+            <div class="botoes-categoria"><!-- Buttons dynamically rendered by JS --></div>
+            <div id="detalhes-modulo">
+                <div class="input-group">
+                    <div class="form-group">
+                        <label for="modulo-selecionado">Módulo Selecionado:</label>
+                        <select id="modulo-selecionado"></select>
+                    </div>
+                    <div class="form-group"><label for="largura">Largura (mm):</label> <input type="number" id="largura" placeholder="Largura do módulo" value="600" /></div>
+                    <div class="form-group"><label for="profundidade">Profundidade (mm):</label> <input type="number" id="profundidade" placeholder="Profundidade do módulo" value="550" /></div>
+                    <div class="form-group"><label for="altura">Altura (mm):</label> <input type="number" id="altura" placeholder="Altura do módulo" value="700" /></div>
+                </div>
+                <button id="add-modulo-btn">Adicionar Módulo ao Projeto</button>
+            </div>
+            <div id="modulos-adicionados"><!-- Modules added to project will be listed here by JS --></div>
+            <button id="gerar-btn" style="background-color: var(--cor-sucesso); margin-top: 20px;">Gerar Relatório</button>
+            <div id="relatorio-container"><!-- Report content will be displayed here --></div>
+            <div id="botoes-exportar" class="button-group"><!-- Export buttons will be displayed here --></div>
+        </div>
+        <!-- MODAL - CRIADOR AVANÇADO DE MÓDULOS -->
+        <div id="modal-criador" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Criador Avançado de Módulos</h2>
+                    <span class="close-btn" onclick="MarcenariaApp.fecharModalCriador()">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group">
+                        <div class="form-group">
+                            <label for="modulos-salvos">Módulos Salvos (Edição):</label>
+                            <select id="modulos-salvos" onchange="MarcenariaApp.carregarModuloParaEdicao()"></select>
+                        </div>
+                    </div>
+                    <div class="button-group" style="margin-bottom: 20px;">
+                        <button onclick="MarcenariaApp.novoModuloForm()">Novo Módulo</button> <button onclick="MarcenariaApp.excluirModulo()" style="background-color: var(--cor-erro);">Excluir Módulo</button>
+                    </div>
+                    <hr />
+                    <div id="form-criador">
+                        <input type="hidden" id="creator-id" />
+                        <div class="form-group"><label for="creator-nome">Nome do Módulo:</label> <input type="text" id="creator-nome" required /></div>
+                        <div class="form-group">
+                            <label for="creator-categoria-select">Categoria:</label>
+                            <select id="creator-categoria-select" onchange="MarcenariaApp.toggleNovaCategoria()"></select>
+                            <input type="text" id="creator-categoria-novo" placeholder="Nome da Nova Categoria" style="display: none; margin-top: 5px;" />
+                        </div>
+                        <h3>Peças do Módulo</h3>
+                        <div id="lista-pecas-criador"><!-- Peças dinâmicas aqui --></div>
+                        <div class="button-group"><button onclick="MarcenariaApp.adicionarPeca()">Adicionar Nova Peça</button></div>
+                        <h3>Ferragens do Módulo</h3>
+                        <div id="lista-ferragens-criador"><!-- Ferragens dinâmicas aqui --></div>
+                        <div class="button-group">
+                            <button onclick="MarcenariaApp.adicionarFerragemUnidade()">Adicionar Ferragem (Unidade)</button> <button onclick="MarcenariaApp.adicionarPuxadorBarra()">Adicionar Puxador (Barra)</button>
+                        </div>
+                        <button onclick="MarcenariaApp.salvarModulo()" style="margin-top: 20px; background-color: var(--cor-sucesso);">Salvar Módulo</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- MODAL - MONTADOR RÁPIDO DE MÓDulos -->
+        <div id="modal-montador-rapido" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Montador Rápido de Módulos</h2>
+                    <span class="close-btn" onclick="MarcenariaApp.fecharMontadorRapido()">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <form id="form-montador">
+                        <div class="form-group"><label for="builder-nome">Nome do Módulo:</label> <input type="text" id="builder-nome" required /></div>
+                        <div class="form-group"><label for="builder-categoria">Categoria:</label> <input type="text" id="builder-categoria" required /></div>
+                        <h3>Componentes Padrão</h3>
+                        <div id="lista-componentes"><!-- Componentes da biblioteca aqui --></div>
+                        <button type="button" onclick="MarcenariaApp.gerarPecasPadraoNoMontador()" style="margin-top: 10px;">Gerar Peças & Ferragens dos Componentes</button>
+                        <h3>Peças Geradas/Manuais</h3>
+                        <div id="lista-pecas-montador-rapido"><!-- Peças calculadas ou adicionadas aqui --></div>
+                        <div class="button-group"><button type="button" onclick="MarcenariaApp.adicionarPecaNoMontador()">Adicionar Peça Manualmente</button></div>
+                        <h3>Ferragens Geradas/Manuais</h3>
+                        <div id="lista-ferragens-montador-rapido"><!-- Ferragens calculadas ou adicionadas aqui --></div>
+                        <div class="button-group">
+                            <button type="button" onclick="MarcenariaApp.adicionarFerragemUnidadeNoMontador()">Adicionar Ferragem (Unidade)</button>
+                            <button type="button" onclick="MarcenariaApp.adicionarPuxadorBarraNoMontador()">Adicionar Puxador (Barra)</button>
+                        </div>
+                        <button type="button" onclick="MarcenariaApp.salvarModuloRapido()" style="margin-top: 20px; background-color: var(--cor-sucesso);">Salvar Módulo Rápido</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- POPUP EDITOR DE FORMULAS -->
+        <div id="popup-editor">
+            <h3>Editar Fórmula</h3>
+            <textarea id="popup-editor-textarea"></textarea>
+            <div class="button-group"><button id="popup-editor-save">Salvar</button> <button id="popup-editor-cancel" style="background-color: var(--cor-erro);">Cancelar</button></div>
+        </div>
+        <!-- MODAL DE ORÇAMENTO PARA O CLIENTE -->
+        <div id="modal-orcamento-cliente" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Orçamento para Cliente</h2>
+                    <span class="close-btn" onclick="MarcenariaApp.fecharModalOrcamentoCliente()">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div id="orcamento-cliente-content"><!-- Conteúdo do orçamento renderizado aqui --></div>
+                    <div class="orcamento-actions">
+                        <button onclick="MarcenariaApp.imprimirOrcamentoCliente()" style="background-color: var(--cor-hover);">Imprimir</button>
+                        <button onclick="MarcenariaApp.exportarPDFCliente()" style="background-color: var(--cor-pdf);">Exportar PDF (Cliente)</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- TERMINAL (DEBUGGING) -->
+        <div id="terminal-container">
+            <div id="terminal-header">Terminal <button id="terminal-close-btn">&times;</button></div>
+            <div id="terminal-body"></div>
+            <div id="terminal-input-line"><span>></span> <input type="text" id="terminal-input" autofocus /></div>
+        </div>
+        <button id="terminal-toggle-btn">⌨️</button>
+        <!-- Link para o arquivo JavaScript externo -->
+        <script src="script.js"></script>
+    </body>
+</html>
